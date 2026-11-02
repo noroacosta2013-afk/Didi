@@ -1,0 +1,86 @@
+--==================================================
+-- BKY HUB - PLAYER
+--==================================================
+
+local speedButton = createButton(playerPage, "SPEED: OFF")
+local jumpButton = createButton(playerPage, "INFINITE JUMP: OFF")
+local nameSelfButton = createButton(playerPage, "NAME: BKY OFF")
+local hideNameButton = createButton(playerPage, "HIDE NAME: OFF")
+
+-- SPEED
+speedButton.MouseButton1Click:Connect(function()
+    if not MASTER then return end
+
+    SPEED = not SPEED
+    updateButton(speedButton, "SPEED", SPEED)
+
+    local character = player.Character
+    local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+
+    if humanoid then
+        humanoid.WalkSpeed = SPEED and SPEED_VALUE or 16
+    end
+end)
+
+-- INFINITE JUMP
+jumpButton.MouseButton1Click:Connect(function()
+    if not MASTER then return end
+
+    INF_JUMP = not INF_JUMP
+    updateButton(jumpButton, "INFINITE JUMP", INF_JUMP)
+end)
+
+-- BKY NAME
+nameSelfButton.MouseButton1Click:Connect(function()
+    if not MASTER then return end
+
+    BKY_NAME = not BKY_NAME
+    updateButton(nameSelfButton, "NAME: BKY", BKY_NAME)
+
+    if player.Character then
+        createBKYName(player.Character, BKY_NAME)
+    end
+end)
+
+-- HIDE NAME
+local function setNameInvisible(state)
+    HIDE_NAME = state
+
+    local character = player.Character
+    local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+
+    if humanoid then
+        humanoid.DisplayDistanceType = state
+            and Enum.HumanoidDisplayDistanceType.None
+            or Enum.HumanoidDisplayDistanceType.Viewer
+    end
+
+    updateButton(hideNameButton, "HIDE NAME", state)
+end
+
+hideNameButton.MouseButton1Click:Connect(function()
+    if not MASTER then return end
+    setNameInvisible(not HIDE_NAME)
+end)
+
+-- RESTAURAR AL REAPARECER
+player.CharacterAdded:Connect(function(character)
+    task.wait(1)
+
+    local humanoid = character:FindFirstChildOfClass("Humanoid")
+
+    if humanoid then
+        if HIDE_NAME then
+            humanoid.DisplayDistanceType =
+                Enum.HumanoidDisplayDistanceType.None
+        end
+
+        if SPEED then
+            humanoid.WalkSpeed = SPEED_VALUE
+        end
+    end
+
+    if BKY_NAME then
+        createBKYName(character, true)
+    end
+end)
